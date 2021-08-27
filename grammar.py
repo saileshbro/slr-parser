@@ -162,7 +162,7 @@ class Grammar:
             if not updated:
                 self.first = first
                 self.follow = follow
-                return
+                return first, follow
     """
     Print first and follow of the grammar
     """
@@ -174,13 +174,13 @@ class Grammar:
         my_table = Texttable(max_width=0)
         my_table.header(["SYMBOL", "FIRST"])
         for key, value in self.first.items():
-            my_table.add_row([key, value])
+            my_table.add_row([key, "  ".join(value)])
         print(my_table.draw())
         print('\n')
         my_table = Texttable(max_width=0)
         my_table.header(["SYMBOL", "FOLLOW"])
         for key, value in self.follow.items():
-            my_table.add_row([key, value])
+            my_table.add_row([key, "  ".join(value)])
         print(my_table.draw())
         print('\n')
 
@@ -191,8 +191,14 @@ class Grammar:
     def print_info(self):
         from texttable import Texttable
         my_table = Texttable(max_width=0)
-        my_table.header(["TYPE", "SET"])
-        my_table.add_row(['TERMINALS', self.terminals])
-        my_table.add_row(['NON-TERMINALS', self.nonterminals])
+        my_table.header(["TYPE", "VALUE"])
+        my_table.add_row(['TERMINALS', "  ".join(self.terminals)])
+        my_table.add_row(['NON-TERMINALS', "  ".join(self.nonterminals)])
+        augment_table = Texttable(max_width=0)
+        augment_table.set_deco(deco=0)
+        for i, val in enumerate(self.grammar_list):
+            head, _, body = val.partition(' -> ')
+            augment_table.add_row([head, '->', body])
+        my_table.add_row(['AUGMENTED GRAMMAR', augment_table.draw()])
         print(my_table.draw())
         print('\n')

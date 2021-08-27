@@ -1,3 +1,4 @@
+from slr_parser import SLRParser
 from grammar import *
 if __name__ == "__main__":
     """
@@ -21,3 +22,6 @@ if __name__ == "__main__":
     g.print_info()
     g.first_follow()
     g.print_first_follow()
+    parser = SLRParser(g)
+    parser.construct_parse_table()
+    parser.draw_parse_table()

@@ -2,4 +2,4 @@ S -> q A B C
 A -> a | b b D
 B -> a | ε
 C -> b | ε
-D -> c | ε
+D -> C | ε
