@@ -5,7 +5,13 @@ if __name__ == "__main__":
     Reads the grammar file and creates a dictionary of the grammar.
     """
     global grammar_str
-    with open('grammar.txt') as f:
+    file_path = input("Enter file path, relative to the main.py\n")
+
+    test_str = str(
+        input("Enter test string, terminals seperated by space eg (id * id + id)\n"))
+    print()
+
+    with open(file_path) as f:
         """
         Reads the lines from the grammar file except the empty lines
         """
@@ -25,3 +31,7 @@ if __name__ == "__main__":
     parser = SLRParser(g)
     parser.construct_parse_table()
     parser.draw_parse_table()
+
+    print()
+    parser.parse_input_string(test_str)
+    parser.print_parsing_result()

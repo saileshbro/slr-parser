@@ -157,7 +157,7 @@ class SLRParser:
                                 Add the nonterminal in the reference passed in the function
                                 """
                                 J.setdefault(symbol_after_dot, set()).add(
-                                    ('.',) if G_body == ('^',) else ('.',) + G_body)
+                                    ('.',) if G_body == ('ε',) else ('.',) + G_body)
             """
             Check if the length of the map is the same as before
             """
@@ -227,7 +227,7 @@ class SLRParser:
                             or if the body is .
                             or if the body except last is in the body of the indexed grammar
                             """
-                            if G_head == head and (G_body == body[:-1] or G_body == ('^',) and body == ('.',)):
+                            if G_head == head and (G_body == body[:-1] or G_body == ('ε',) and body == ('.',)):
                                 """
                                 Read the follow of the given grammar
                                 """
@@ -276,14 +276,118 @@ class SLRParser:
 
     def draw_parse_table(self):
         from texttable import Texttable
-        print('\nPARSING TABLE:')
+        print('PARSING TABLE:')
         action_goto_table = Texttable(max_width=0)
         for r in range(len(self.canonical)+1):
             if r == 0:
-                action_goto_table.add_row(self.parse_table_symbols)
+                arr = ['STATE'] + self.parse_table_symbols
+                action_goto_table.add_row(arr)
             else:
                 row = []
                 for c in self.parse_table_symbols:
                     row.append(self.parse_table[r-1][c])
+                row = [r-1]+row
                 action_goto_table.add_row(row)
         print(action_goto_table.draw())
+
+    def parse_input_string(self, input_string: str):
+        from texttable import Texttable
+
+        print('PARSING INPUT STRING:')
+        buffer = f'{input_string} $'.split()
+        pointer = 0
+        a = buffer[pointer]
+        stack = ['0']
+        symbols = ['']
+        results = {
+            'step': [''],
+            'stack': ['STACK'] + stack,
+            'symbols': ['SYMBOLS'] + symbols,
+            'input': ['INPUT'],
+            'action': ['ACTION']
+        }
+
+        step = 0
+        while True:
+            s = int(stack[-1])
+            step += 1
+            results['step'].append(f'({step})')
+            results['input'].append(' '.join(buffer[pointer:]))
+
+            if a not in self.parse_table[s]:
+                results['action'].append(f'ERROR: unrecognized symbol {a}')
+                break
+
+            elif not self.parse_table[s][a]:
+                results['action'].append(
+                    'ERROR: input cannot be parsed by given grammar')
+                break
+
+            elif '/' in self.parse_table[s][a]:
+                action = 'reduce' if self.parse_table[s][a].count(
+                    'r') > 1 else 'shift'
+                results['action'].append(
+                    f'ERROR: {action}-reduce conflict at state {s}, symbol {a}')
+                break
+
+            elif self.parse_table[s][a].startswith('s'):
+                number = self.parse_table[s][a][1:]
+                results['action'].append(f'shift {number}')
+                stack.append(self.parse_table[s][a][1:])
+                symbols.append(a)
+                results['stack'].append(' '.join(stack))
+                results['symbols'].append(' '.join(symbols))
+                pointer += 1
+                a = buffer[pointer]
+
+            elif self.parse_table[s][a].startswith('r'):
+                head, body = self.G_indexed[int(self.parse_table[s][a][1:])]
+                results['action'].append(
+                    f'reduce by {head} -> {" ".join(body)}')
+
+                if body != ('ε',):
+                    stack = stack[:-len(body)]
+                    symbols = symbols[:-len(body)]
+
+                stack.append(str(self.parse_table[int(stack[-1])][head]))
+                symbols.append(head)
+                results['stack'].append(' '.join(stack))
+                results['symbols'].append(' '.join(symbols))
+
+            elif self.parse_table[s][a] == 'acc':
+                results['action'].append('accept')
+
+                break
+
+        self.results = results
+        return
+
+    def print_parsing_result(self):
+        from texttable import Texttable
+        table = Texttable(max_width=0)
+        results = self.results
+        symbol = self.results['symbols'][1:]
+        stack = self.results['stack'][1:]
+        stack = [e.strip().split(" ") for e in stack]
+        symbol = [e.strip().split(" ") for e in symbol]
+        stack_symbol = []
+        for st_element, sy_element in zip(stack, symbol):
+            total = st_element + sy_element
+            length = len(total)
+            value = []
+
+            for i in range(length):
+                if(i % 2 == 0):
+                    index = int(i/2)
+                    value.append(st_element[index])
+                else:
+                    index = int((i-1)/2)
+                    value.append(sy_element[index])
+            value = "".join(value).strip()
+            stack_symbol.append(value)
+        table.header(['', 'STACK', 'INPUT', 'ACTION'])
+        input_arr = results['input'][1:]
+        action_arr = results['action'][1:]
+        for i in range(len(input_arr)):
+            table.add_row([i, stack_symbol[i], input_arr[i], action_arr[i]])
+        print(table.draw())
