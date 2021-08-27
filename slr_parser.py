@@ -37,7 +37,6 @@ class SLRParser:
         self.goto = list(self.G_prime.nonterminals-{self.G_prime.start})
         self.parse_table_symbols = self.action+self.goto
         self.parse_table = self.construct_parse_table()
-        print(self.parse_table)
 
     """
     Get the canonical item for the grammar
@@ -279,10 +278,6 @@ class SLRParser:
         from texttable import Texttable
         print('\nPARSING TABLE:')
         action_goto_table = Texttable(max_width=0)
-        # action_goto_table.add_row(["ACTION", "GOTO"])
-        print(action_goto_table.draw())
-        action_table = Texttable(max_width=0)
-        goto_table = Texttable(max_width=0)
         for r in range(len(self.canonical)+1):
             if r == 0:
                 action_goto_table.add_row(self.parse_table_symbols)
