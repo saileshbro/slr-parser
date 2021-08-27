@@ -1,15 +1,23 @@
 from grammar import *
-from texttable import Texttable
 if __name__ == "__main__":
-    g = Grammar("grammar.txt")
-    first, follow = g.first_follow()
-    my_table = Texttable()
-    my_table.header(["Symbol", "First"])
-    for key, value in first.items():
-        my_table.add_row([key, value])
-    print(my_table.draw())
-    print('\n\n')
-    my_table.header(["Symbol", "Follow"])
-    for key, value in follow.items():
-        my_table.add_row([key, value])
-    print(my_table.draw())
+    """
+    Reads the grammar file and creates a dictionary of the grammar.
+    """
+    global grammar_str
+    with open('grammar.txt') as f:
+        """
+        Reads the lines from the grammar file except the empty lines
+        """
+        grammar_list = list(filter(None, f.read().splitlines()))
+        """
+        Joins all the lines with \n string
+        """
+        grammar_str = '\n'.join(grammar_list)
+    g = Grammar(grammar_str)
+    """
+    Add S' -> S at the top of the grammar
+    """
+    g = Grammar(f"{g.start}' -> {g.start}\n{g.grammar_str}")
+    g.print_info()
+    g.first_follow()
+    g.print_first_follow()

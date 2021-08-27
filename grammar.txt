@@ -1,5 +1,5 @@
 S -> q A B C
 A -> a | b b D
-B -> a | ^
-C -> b | ^
-D -> C | ^
+B -> a | ε
+C -> b | ε
+D -> c | ε
