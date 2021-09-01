@@ -1,4 +1,3 @@
-from typing import Container, Text
 from grammar import Grammar
 
 
@@ -9,7 +8,6 @@ class SLRParser:
 
     def __init__(self, G: Grammar):
         self.G_prime = G
-        self.max_G_prime_len = len(max(self.G_prime.grammar, key=len))
         self.G_indexed = []
         """
         For head and bodies in grammar items
@@ -78,7 +76,7 @@ class SLRParser:
     """
     Evaluated goto on a provided canonical item with a given non terminal
     Here I is a canonical item set
-    X is a non terminal
+    X is a symbol
     """
 
     def eval_goto(self, I, X):
@@ -206,7 +204,7 @@ class SLRParser:
                             """
                             if s not in parse_table[i][symbol_after_dot]:
                                 """
-                                Shift conflict happened here
+                                reduce reduce conflict happened here
                                 """
                                 if 'r' in parse_table[i][symbol_after_dot]:
                                     parse_table[i][symbol_after_dot] += '/'
@@ -383,7 +381,7 @@ class SLRParser:
                 else:
                     index = int((i-1)/2)
                     value.append(sy_element[index])
-            value = "".join(value).strip()
+            value = " ".join(value).strip()
             stack_symbol.append(value)
         table.header(['', 'STACK', 'INPUT', 'ACTION'])
         input_arr = results['input'][1:]

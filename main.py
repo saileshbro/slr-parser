@@ -8,9 +8,8 @@ if __name__ == "__main__":
     file_path = input("Enter file path, relative to the main.py\n")
 
     test_str = str(
-        input("Enter test string, terminals seperated by space eg (id * id + id)\n"))
+        input("Enter test string, terminals seperated by space eg\n"))
     print()
-
     with open(file_path) as f:
         """
         Reads the lines from the grammar file except the empty lines
@@ -20,11 +19,12 @@ if __name__ == "__main__":
         Joins all the lines with \n string
         """
         grammar_str = '\n'.join(grammar_list)
-    g = Grammar(grammar_str)
+    temp = Grammar(grammar_str)
     """
     Add S' -> S at the top of the grammar
     """
-    g = Grammar(f"{g.start}' -> {g.start}\n{g.grammar_str}")
+    grammar_aug = f"{temp.start}' -> {temp.start}\n{temp.grammar_str}"
+    g = Grammar(grammar_aug)
     g.print_info()
     g.first_follow()
     g.print_first_follow()
